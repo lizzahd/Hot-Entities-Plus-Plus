@@ -4,16 +4,11 @@
 
 #pragma once
 
-#ifdef ENTITY_BROAD_TYPES_HEADER
-#include ENTITY_BROAD_TYPES_HEADER
-#else
-enum class EntityBroadType {};
-#endif
-
 #ifdef ENTITY_TYPES_HEADER
 #include ENTITY_TYPES_HEADER
 #else
 enum class EntityType {};
+enum class EntityBroadType {};
 #endif
 
 class IEntity {
