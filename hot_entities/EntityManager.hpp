@@ -12,6 +12,10 @@
 
 #include "IEntity.hpp"
 
+#ifdef ENTITY_MANAGER_EXTERNAL_HEADER
+#include ENTITY_MANAGER_EXTERNAL_HEADER
+#endif
+
 class EntityManager : public std::enable_shared_from_this<EntityManager> {
 public:
 #ifdef ENTITY_MANAGER_REQUIREMENTS
