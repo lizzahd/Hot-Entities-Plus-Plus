@@ -46,6 +46,7 @@ public:
         registerBroadType(broadType, std::vector<std::type_index>{std::type_index(args)...});
     }
 
+    /// Creates an entity that lives in EntityManager and returns its pointer
     template<typename T, typename... Args>
     T* create(Args&&... args) {
         const int id = m_nextId++;
@@ -62,6 +63,7 @@ public:
         return ptr;
     }
 
+    /// Moves an already existing std::unique_ptr<T> in EntityManager and returns its pointer
     template<typename T>
     T* create(std::unique_ptr<T> entity) {
         T* ptr = entity.get();
@@ -72,6 +74,7 @@ public:
         return ptr;
     }
 
+    /// Creates an entity with all required parameters and returns a unique pointer instead of adding it to EntityManager
     template<typename T, typename... Args>
     std::unique_ptr<T> createObject(Args&&... args) {
 #ifdef ENTITY_MANAGER_MEMBERS
@@ -81,16 +84,19 @@ public:
 #endif
     }
 
+    /// Returns a broad IEntity pointer when given an id
     IEntity* get(const int id) {
         const auto it = m_entities.find(id);
         return it != m_entities.end() ? it->second.get() : nullptr;
     }
 
+    /// Returns an entity pointer casted to T when given an id
     template<typename T>
     T* getAs(const int id) {
         return dynamic_cast<T*>(get(id));
     }
 
+    /// Removes an entity based on id
     void remove(const int id) {
         const auto it = m_entities.find(id);
         if (it == m_entities.end()) {
@@ -108,6 +114,7 @@ public:
         }
     }
 
+    /// Calls IEntity::update and IEntity::draw on each entity
     void updateAll() {
         std::vector<int> toRemove;
         for (const auto& [id, entity]: m_entities) {
@@ -131,11 +138,13 @@ public:
         }
     }
 
+    /// Returns a vector of entity ids filtered by type
     template<typename T>
     std::vector<int>& getEntitiesByType() {
         return m_entitiesByType[std::type_index(typeid(T))];
     }
 
+    /// Takes a callback (void(int, const &IEntity)) to execute against each entity
     template<typename F>
     void exec(F&& cb) {
         for (const auto &[id, entity]: m_entities) {
@@ -143,6 +152,7 @@ public:
         }
     }
 
+    /// Takes a callback (void(int, *T)) to execute against each entity filtered by type
     template<typename T, typename F>
     void execByType(F&&cb) {
         for (int id : getEntitiesByType<T>()) {
@@ -152,6 +162,9 @@ public:
         }
     }
 
+    /// Takes a callback (bool(int, *T)) to execute against each entity filtered by type.
+    /// Returning false continues the loop, where returning true breaks it.
+    /// Function returns true if broken
     template<typename T, typename F>
     bool breakableExecByType(F&&cb) {
         for (int id : getEntitiesByType<T>()) {
