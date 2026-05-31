@@ -12,17 +12,18 @@
 
 #include "IEntity.hpp"
 
-class Map;
-class AssetManager;
-class Camera2D;
-
 class EntityManager : public std::enable_shared_from_this<EntityManager> {
 public:
-    explicit EntityManager(const std::shared_ptr<AssetManager> &assetManager, const std::shared_ptr<Camera2D> &camera, const std::shared_ptr<Map> &map)
-        : m_assetManager(assetManager)
-        , m_camera(camera)
-        , m_map(map)
+#ifdef ENTITY_MANAGER_REQUIREMENTS
+    explicit EntityManager(ENTITY_MANAGER_REQUIREMENTS)
+#ifdef ENTITY_MANAGER_CONSTRUCTION
+        ENTITY_MANAGER_CONSTRUCTION
+#endif // ENTITY_MANAGER_CONSTRUCTION
     {}
+#else // ENTITY_MANAGER_REQUIREMENTS
+    explicit EntityManager()
+    {}
+#endif // ENTITY_MANAGER_REQUIREMENTS
     ~EntityManager() = default;
 
     /// Takes a broad type and registers it to cover a list of typename(Class)'s
@@ -40,7 +41,11 @@ public:
     template<typename T, typename... Args>
     T* create(Args&&... args) {
         const int id = m_nextId++;
-        auto entity = std::make_unique<T>(id, shared_from_this(), m_assetManager, m_camera, m_map, std::forward<Args>(args)...);
+#ifdef ENTITY_MANAGER_MEMBERS
+        auto entity = std::make_unique<T>(id, shared_from_this(), ENTITY_MANAGER_MEMBERS, std::forward<Args>(args)...);
+#else
+        auto entity = std::make_unique<T>(id, shared_from_this(), std::forward<Args>(args)...);
+#endif
         T* ptr = entity.get();
         m_entities[id] = std::unique_ptr<IEntity>(std::move(entity));
 
@@ -61,7 +66,11 @@ public:
 
     template<typename T, typename... Args>
     std::unique_ptr<T> createObject(Args&&... args) {
-        return std::make_unique<T>(m_nextId++, shared_from_this(), m_assetManager, m_camera, m_map, std::forward<Args>(args)...);
+#ifdef ENTITY_MANAGER_MEMBERS
+        return std::make_unique<T>(m_nextId++, shared_from_this(), ENTITY_MANAGER_MEMBERS, std::forward<Args>(args)...);
+#else
+        return std::make_unique<T>(m_nextId++, shared_from_this(), std::forward<Args>(args)...);
+#endif
     }
 
     IEntity* get(const int id) {
@@ -191,8 +200,9 @@ private:
     // TODO: cast enum classes to int and store them as such, so they can use whatever enumerations they want
     std::unordered_map<EntityBroadType, std::vector<std::type_index>> m_broadTypeRegistry;
 
-    std::shared_ptr<AssetManager> m_assetManager;
-    std::shared_ptr<Camera2D> m_camera;
-    std::shared_ptr<Map> m_map;
     std::map<int, std::vector<int>> m_layerIndex;
+
+#ifdef ENTITY_MANAGER_MEMBERS_DECL
+    ENTITY_MANAGER_MEMBERS_DECL;
+#endif
 };
