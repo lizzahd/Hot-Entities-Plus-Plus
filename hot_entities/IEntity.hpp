@@ -5,15 +5,19 @@
 #pragma once
 
 enum class EntityBroadType {
-    Character,
-    Interactable,
+#ifdef ENTITY_BROAD_TYPES
+    ENTITY_BROAD_TYPES
+#else
+    None,
+#endif // ENTITY_BROAD_TYPES
 };
 
 enum class EntityType {
+#ifdef ENTITY_TYPES
+    ENTITY_TYPES
+#else
     None,
-    Player,
-    Npc,
-    Interactable,
+#endif // ENTITY_TYPES
 };
 
 class IEntity {
