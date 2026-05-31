@@ -4,21 +4,17 @@
 
 #pragma once
 
-enum class EntityBroadType {
-#ifdef ENTITY_BROAD_TYPES
-    ENTITY_BROAD_TYPES
+#ifdef ENTITY_BROAD_TYPES_HEADER
+#include ENTITY_BROAD_TYPES_HEADER
 #else
-    None,
-#endif // ENTITY_BROAD_TYPES
-};
+enum class EntityBroadType {};
+#endif
 
-enum class EntityType {
-#ifdef ENTITY_TYPES
-    ENTITY_TYPES
+#ifdef ENTITY_TYPES_HEADER
+#include ENTITY_TYPES_HEADER
 #else
-    None,
-#endif // ENTITY_TYPES
-};
+enum class EntityType {};
+#endif
 
 class IEntity {
     public:
