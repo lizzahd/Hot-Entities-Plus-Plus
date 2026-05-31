@@ -10,7 +10,7 @@
 #include <unordered_map>
 #include <map>
 
-#include "IEntity.h"
+#include "IEntity.hpp"
 
 class EntityManager : public std::enable_shared_from_this<EntityManager> {
 public:
