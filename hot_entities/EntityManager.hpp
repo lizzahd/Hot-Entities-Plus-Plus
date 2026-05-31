@@ -12,6 +12,10 @@
 
 #include "IEntity.hpp"
 
+class Map;
+class AssetManager;
+class Camera2D;
+
 class EntityManager : public std::enable_shared_from_this<EntityManager> {
 public:
     explicit EntityManager(const std::shared_ptr<AssetManager> &assetManager, const std::shared_ptr<Camera2D> &camera, const std::shared_ptr<Map> &map)
@@ -96,21 +100,12 @@ public:
             }
 
             entity->update();
-            // entity->draw();
-            //
-            // if (inDebugMode) {
-            //     entity->drawDebug();
-            // }
         }
 
         // Gotta draw separately due to layering. A bit expensive
         for (const auto &ids: m_layerIndex | std::views::values) {
             for (const int id : ids) {
                 m_entities[id]->draw();
-
-                if (inDebugMode) {
-                    m_entities[id]->drawDebug();
-                }
             }
         }
 
