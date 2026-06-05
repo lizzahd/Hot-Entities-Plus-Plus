@@ -126,15 +126,17 @@ public:
             entity->update();
         }
 
+        for (const int id : toRemove) {
+            remove(id);
+        }
+    }
+
+	void drawAll() const {
         // Gotta draw separately due to layering. A bit expensive
         for (const auto &ids: m_layerIndex | std::views::values) {
             for (const int id : ids) {
                 m_entities[id]->draw();
             }
-        }
-
-        for (const int id : toRemove) {
-            remove(id);
         }
     }
 
