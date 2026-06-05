@@ -131,7 +131,7 @@ public:
         }
     }
 
-	void drawAll() const {
+	void drawAll() {
         // Gotta draw separately due to layering. A bit expensive
         for (const auto &ids: m_layerIndex | std::views::values) {
             for (const int id : ids) {
