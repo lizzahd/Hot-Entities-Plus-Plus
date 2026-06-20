@@ -20,7 +20,7 @@
 ENTITY_MANAGER_DECLARATIONS;
 #endif
 
-class EntityManager : public std::enable_shared_from_this<EntityManager> {
+class EntityManager {
 public:
 #ifdef ENTITY_MANAGER_REQUIREMENTS
     explicit EntityManager(ENTITY_MANAGER_REQUIREMENTS)
@@ -51,9 +51,9 @@ public:
     T* create(Args&&... args) {
         const int id = m_nextId++;
 #ifdef ENTITY_MANAGER_MEMBERS
-        auto entity = std::make_unique<T>(id, shared_from_this(), ENTITY_MANAGER_MEMBERS, std::forward<Args>(args)...);
+        auto entity = std::make_unique<T>(id, this, ENTITY_MANAGER_MEMBERS, std::forward<Args>(args)...);
 #else
-        auto entity = std::make_unique<T>(id, shared_from_this(), std::forward<Args>(args)...);
+        auto entity = std::make_unique<T>(id, this, std::forward<Args>(args)...);
 #endif
         T* ptr = entity.get();
         m_entities[id] = std::unique_ptr<IEntity>(std::move(entity));
@@ -78,9 +78,9 @@ public:
     template<typename T, typename... Args>
     std::unique_ptr<T> createObject(Args&&... args) {
 #ifdef ENTITY_MANAGER_MEMBERS
-        return std::make_unique<T>(m_nextId++, shared_from_this(), ENTITY_MANAGER_MEMBERS, std::forward<Args>(args)...);
+        return std::make_unique<T>(m_nextId++, this, ENTITY_MANAGER_MEMBERS, std::forward<Args>(args)...);
 #else
-        return std::make_unique<T>(m_nextId++, shared_from_this(), std::forward<Args>(args)...);
+        return std::make_unique<T>(m_nextId++, this, std::forward<Args>(args)...);
 #endif
     }
 
