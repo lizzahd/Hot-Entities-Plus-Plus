@@ -13,12 +13,3 @@ target_include_directories(hot_entities INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<INSTALL_INTERFACE:include>
 )
-
-# Test executable
-add_executable(test
-        Test.cpp
-)
-
-target_include_directories(test PRIVATE
-        hot_entities
-)
