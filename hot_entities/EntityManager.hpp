@@ -12,40 +12,32 @@
 
 #include "IEntity.hpp"
 
-#ifdef ENTITY_MANAGER_EXTERNAL_HEADER
-#ifdef ENTITY_MANAGER_NAMESPACE_DECLARATIONS
-ENTITY_MANAGER_NAMESPACE_DECLARATIONS
-#endif
-#include ENTITY_MANAGER_EXTERNAL_HEADER
-#endif
-
-#ifdef ENTITY_MANAGER_DECLARATIONS
-ENTITY_MANAGER_DECLARATIONS;
-#endif
+/// This interface is designed to be used to pass pointers and other
+/// data between all entities via the entity manager, so we can (mostly)
+/// eliminate the need for an external declarative header
+class ILocals {
+public:
+    virtual ~ILocals() = default;
+};
 
 class EntityManager {
 public:
-#ifdef ENTITY_MANAGER_REQUIREMENTS
-    explicit EntityManager(ENTITY_MANAGER_REQUIREMENTS)
-#ifdef ENTITY_MANAGER_CONSTRUCTION
-        ENTITY_MANAGER_CONSTRUCTION
-#endif // ENTITY_MANAGER_CONSTRUCTION
-    {}
-#else // ENTITY_MANAGER_REQUIREMENTS
-    explicit EntityManager()
-    {}
-#endif // ENTITY_MANAGER_REQUIREMENTS
+    explicit EntityManager() = default;
     ~EntityManager() = default;
+
+    void init(ILocals *locals) {
+        m_locals = locals;
+    }
 
     /// Takes a broad type and registers it to cover a list of typename(Class)'s
     template<typename I>
-    void registerBroadType(const EntityBroadType broadType, const I typeIndices) {
+    void registerBroadType(const int broadType, const I typeIndices) {
         m_broadTypeRegistry.emplace(broadType, typeIndices);
     }
 
     /// Takes a broad type and registers it to cover a variadic amount of typename(Class)'s
     template<typename... Args>
-    void registerBroadType(const EntityBroadType broadType, Args&&... args) {
+    void registerBroadType(const int broadType, Args&&... args) {
         registerBroadType(broadType, std::vector<std::type_index>{std::type_index(args)...});
     }
 
@@ -53,11 +45,7 @@ public:
     template<typename T, typename... Args>
     T* create(Args&&... args) {
         const int id = m_nextId++;
-#ifdef ENTITY_MANAGER_MEMBERS
-        auto entity = std::make_unique<T>(id, this, ENTITY_MANAGER_MEMBERS, std::forward<Args>(args)...);
-#else
-        auto entity = std::make_unique<T>(id, this, std::forward<Args>(args)...);
-#endif
+        auto entity = std::make_unique<T>(id, m_locals, std::forward<Args>(args)...);
         T* ptr = entity.get();
         m_entities[id] = std::unique_ptr<IEntity>(std::move(entity));
 
@@ -80,11 +68,7 @@ public:
     /// Creates an entity with all required parameters and returns a unique pointer instead of adding it to EntityManager
     template<typename T, typename... Args>
     std::unique_ptr<T> createObject(Args&&... args) {
-#ifdef ENTITY_MANAGER_MEMBERS
-        return std::make_unique<T>(m_nextId++, this, ENTITY_MANAGER_MEMBERS, std::forward<Args>(args)...);
-#else
-        return std::make_unique<T>(m_nextId++, this, std::forward<Args>(args)...);
-#endif
+        return std::make_unique<T>(m_nextId++, m_locals, std::forward<Args>(args)...);
     }
 
     /// Returns a broad IEntity pointer when given an id
@@ -224,11 +208,9 @@ private:
     // This is so I can just find all structures or units really fast
     std::unordered_map<std::type_index, std::vector<int>> m_entitiesByType;
     // TODO: cast enum classes to int and store them as such, so they can use whatever enumerations they want
-    std::unordered_map<EntityBroadType, std::vector<std::type_index>> m_broadTypeRegistry;
+    std::unordered_map<int, std::vector<std::type_index>> m_broadTypeRegistry;
 
     std::map<int, std::vector<int>> m_layerIndex;
 
-#ifdef ENTITY_MANAGER_MEMBERS_DECL
-    ENTITY_MANAGER_MEMBERS_DECL;
-#endif
+    ILocals *m_locals = nullptr;
 };
