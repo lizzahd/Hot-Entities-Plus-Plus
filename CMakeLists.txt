@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD 23)
 add_library(hot_entities INTERFACE
         hot_entities/EntityManager.hpp
         hot_entities/IEntity.hpp
-        hot_entities/Locals.h
 )
 
 target_include_directories(hot_entities INTERFACE
