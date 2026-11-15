@@ -9,6 +9,7 @@
 #include <typeindex>
 #include <unordered_map>
 #include <map>
+#include <vector>
 
 #include "IEntity.hpp"
 
